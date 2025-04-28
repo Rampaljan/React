@@ -1,0 +1,51 @@
+import React, { useState, useEffect } from "react";
+
+function App() {
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 3000)); // Opóźnienie 3 sekundy
+        const response = await fetch("http://localhost:3500/students");
+
+        if (!response.ok) {
+          throw new Error("Błąd podczas pobierania danych!");
+        }
+
+        const data = await response.json();
+        setStudents(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <div>
+      <h1>Lista studentów</h1>
+      {loading && <p style={{ color: "blue" }}>Ładowanie danych...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <ul>
+        {!loading &&
+          !error &&
+          students.map((student) => (
+            <li key={student.id}>
+              {student.name} - {student.age} lat
+            </li>
+          ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
